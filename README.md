@@ -4,11 +4,32 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.machanism.machai/project-layout.svg)](https://central.sonatype.com/artifact/org.machanism.machai/project-layout) [![bindex](https://img.shields.io/badge/bindex-blue.svg)](https://raw.githubusercontent.com/machanism-org/project-layout/refs/heads/main/bindex.json)
 
+## Cloning and Getting Started
+
+To clone and set up this project locally, follow these steps:
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/machanism-org/project-layout.git
+   cd project-layout
+   ```
+2. **Build the project using Maven:**
+   ```bash
+   mvn clean install
+   ```
+
 Project Layout is a Java utility library for describing, detecting, and working with conventional project directory layouts. It gives build tooling, repository scanners, generators, validators, documentation tooling, and indexers a shared way to locate sources, tests, resources, documentation, and modules across project ecosystems.
 
 ## Project Structure
 
-The component design centers on a shared layout contract that exposes project roots, modules, source, test, and documentation roots, relative paths, exclusions, and temporary storage. A layout manager selects the first matching Maven, Gradle, JavaScript/TypeScript, Python, or fallback implementation from project markers, while a project processor detects layouts, recursively scans their modules, and delegates processing of leaf projects.
+The component design centers on a shared layout contract that exposes project roots, modules, source, test, and documentation roots, relative paths, exclusions, and temporary storage. A layout manager selects the first matching Maven, Gradle, JavaScript/TypeScript, Python, or fallback implementation from project metadata, while a project processor detects layouts, recursively scans their modules, and delegates processing of leaf projects.
+
+The library is organized around the following components:
+
+- `ProjectLayout`: common contract for project roots, modules, source, test, resource, and documentation paths.
+- `ProjectLayoutManager`: selects Maven, Gradle, JavaScript/TypeScript, Python, or fallback layouts based on project markers.
+- `ProjectProcessor`: recursively processes detected modules and delegates leaf-project work to subclasses.
+- Specialized layouts and metadata readers: provide ecosystem-specific discovery through Maven models, the Gradle Tooling API, Jackson, and Tomlj.
 
 Specialized layouts preserve each ecosystem's discovery rules: Maven metadata is read through a dedicated model reader, Gradle child projects are loaded through the Tooling API, and JavaScript and Python metadata are inspected through JSON and TOML parsers. All layouts work with the project file system and emit diagnostics through SLF4J, so consumers can use one API across project ecosystems.
 
