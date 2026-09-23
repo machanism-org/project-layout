@@ -12,7 +12,7 @@
 
       <!-- Fixes -->
       <action dev="dev" type="fix">Tool Selection: Fixed automatic tool selection behavior.</action>
-      <action dev="dev" type="fix">File Processing: Fixed file-path resolution in file-processing tools.</action>
+      <action dev="dev" type="fix">File Processing: Fixed path resolution in file-processing tools.</action>
 
       <!-- Chores -->
       <action dev="dev" type="remove">Configuration: Removed the obsolete enabled-tools configuration.</action>
