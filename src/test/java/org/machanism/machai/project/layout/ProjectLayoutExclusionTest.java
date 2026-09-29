@@ -20,7 +20,7 @@ class ProjectLayoutExclusionTest {
     void isExcludedPath_shouldMatchGlobAgainstFileNameAndLeaveOtherPathsIncluded() {
         // Arrange
         ProjectLayout layout = new DefaultProjectLayout();
-        layout.setExcludeDirs(Arrays.asList("*.log"));
+        layout.setExcludeDirs(Arrays.asList("glob:*.log"));
         File logFile = tempDir.resolve("build.log").toFile();
         File sourceFile = tempDir.resolve("Main.java").toFile();
 

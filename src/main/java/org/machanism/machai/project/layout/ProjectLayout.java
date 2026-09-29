@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -305,18 +306,25 @@ public abstract class ProjectLayout {
 		if (file == null) {
 			return false;
 		}
-		Path targetPath = file.toPath();
 		for (String exclude : getExcludeDirs()) {
 			// Ensure the pattern uses standard glob syntax (e.g. "glob:**/temp/**")
-			String globPattern = exclude.startsWith("glob:") ? exclude : "glob:" + exclude;
-			try {
-				PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
+			if (Strings.CS.startsWithAny(exclude, "regex:")) {
+				Pattern pattern = Pattern.compile(exclude);
+				if (pattern.matcher(file.getPath()).matches()) {
+					return true;
+				}
+			}
+			if (Strings.CS.startsWithAny(exclude, "glob:")) {
+				PathMatcher matcher = FileSystems.getDefault().getPathMatcher(exclude);
+				Path targetPath = file.toPath();
 				if (matcher.matches(targetPath) || matcher.matches(targetPath.getFileName())) {
 					return true;
 				}
-			} catch (IllegalArgumentException e) {
-				// Fallback to exact string match if the glob pattern is invalid
-				if (file.getPath().equals(exclude) || file.getName().equals(exclude)) {
+			} else {
+				exclude = Pattern.quote(exclude);
+				exclude = "(?i).*(^|[/\\\\])(" + exclude + ")([/\\\\]|$).*";
+				Pattern pattern = Pattern.compile(exclude);
+				if (pattern.matcher(file.getPath()).matches()) {
 					return true;
 				}
 			}

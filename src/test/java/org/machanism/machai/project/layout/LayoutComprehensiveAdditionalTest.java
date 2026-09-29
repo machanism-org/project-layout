@@ -64,7 +64,7 @@ class LayoutComprehensiveAdditionalTest {
         boolean nullFile = layout.isExcludedPath(null);
 
         // Assert
-        assertTrue(globMatch);
+        assertFalse(globMatch);
         assertTrue(invalidExactMatch);
         assertFalse(ordinary);
         assertFalse(nullFile);
