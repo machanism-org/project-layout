@@ -2,26 +2,30 @@
  * Coordinates project-layout detection and recursive processing of project
  * modules.
  *
- * <p>The package has two entry points. {@link ProjectLayoutManager} examines a
- * directory and returns a configured
- * {@link org.machanism.machai.project.layout.ProjectLayout}. Detection is
- * deterministic: Maven ({@code pom.xml}) takes precedence over Gradle
- * ({@code build.gradle}), JavaScript or TypeScript ({@code package.json}), and
- * Python ({@code pyproject.toml}). An existing directory without a recognized
- * descriptor uses {@link
- * org.machanism.machai.project.layout.DefaultProjectLayout}; a missing
- * directory results in {@link java.io.FileNotFoundException}.</p>
+ * <p>{@link ProjectLayoutManager} is the package's layout-detection entry
+ * point. It examines a directory in the following deterministic order:
+ * Maven ({@code pom.xml}), Gradle ({@code build.gradle}), JavaScript or
+ * TypeScript ({@code package.json}), and Python ({@code pyproject.toml}). An
+ * existing directory without a recognized descriptor receives a
+ * {@link org.machanism.machai.project.layout.DefaultProjectLayout}; a missing
+ * directory causes {@link java.io.FileNotFoundException}.</p>
  *
- * <p>{@link ProjectProcessor} supplies the traversal workflow. It obtains a
- * layout for the root directory, recursively scans each module returned by the
- * layout, and calls the subclass's
+ * <p>{@link ProjectProcessor} provides the traversal entry point. It detects a
+ * layout for the root directory and recursively scans every module returned by
+ * {@link org.machanism.machai.project.layout.ProjectLayout#getModules()}.
+ * A {@code null} module list represents a leaf layout and invokes the
+ * processor's
  * {@link ProjectProcessor#processFolder(org.machanism.machai.project.layout.ProjectLayout)}
- * hook for a layout that returns {@code null} from
- * {@link org.machanism.machai.project.layout.ProjectLayout#getModules()}. A
- * non-null, empty module list is intentionally treated as having no work and
- * does not invoke the hook. Layouts expose root-relative source, test, and
- * documentation paths, together with metadata such as project names and
- * identifiers, when supported by the underlying build system.</p>
+ * hook. A non-null empty list represents a parent with no work and does not
+ * invoke the hook. Subclasses should therefore make folder processing safe to
+ * call once for each discovered leaf project or module.</p>
+ *
+ * <p>Layout implementations expose root-relative production-source, test, and
+ * documentation paths, where supported by the build system. They can also
+ * provide module paths and metadata such as project names, identifiers, and
+ * parent identifiers. Resolve returned paths against
+ * {@link org.machanism.machai.project.layout.ProjectLayout#getProjectDir()}
+ * before accessing the filesystem.</p>
  *
  * <h2>Typical usage</h2>
  * <pre><code>
@@ -30,10 +34,9 @@
  * processor.scanFolder(projectDir);
  * </code></pre>
  *
- * <p>Implementations should make folder processing safe to invoke once for
- * every discovered leaf project or module. See the
- * {@link org.machanism.machai.project.layout} package for the concrete layout
- * implementations, descriptor-specific behavior, path conventions, and
+ * <p>Use the
+ * {@link org.machanism.machai.project.layout} package for concrete layout
+ * implementations and descriptor-specific behavior, path conventions, and
  * metadata limitations.</p>
  *
  * @since 0.0.2
