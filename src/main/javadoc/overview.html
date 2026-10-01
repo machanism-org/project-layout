@@ -49,9 +49,9 @@
       To process a repository, extend <CODE>ProjectProcessor</CODE> and implement its
       folder-processing operation. The processor applies that operation to a leaf
       project, or traverses the modules reported by a parent layout. This makes one
-      operation reusable across a repository and its discovered child projects; a
-      layout with no declared modules is handled as a leaf according to the processor's
-      documented contract.
+      operation reusable across a repository and its discovered child projects. A
+      <CODE>null</CODE> module list identifies a leaf and invokes the processing hook;
+      an empty module list identifies a parent with no modules and does not invoke it.
     </P>
 
     <H2>Principal types</H2>

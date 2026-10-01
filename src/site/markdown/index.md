@@ -97,6 +97,13 @@ Project Layout is a library, not a Maven plugin, so it does not provide a Maven 
 mvn clean verify
 ```
 
+For example, after adding Project Layout to a consuming Maven plugin, run that
+plugin's goal in the consuming project with its usual Maven command:
+
+```bash
+mvn <plugin-prefix>:<goal>
+```
+
 ### Typical Workflow
 
 1. Add `project-layout` as a dependency to the plugin, scanner, generator, or build tool that needs to inspect project structure.
