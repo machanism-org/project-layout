@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/machanism-org/machai/refs/heads/main/bindex-core/src/main/resources/schema/bindex-schema-v2.json",
+  "$schema": "https://raw.githubusercontent.com/machanism-org/bindex-core/refs/heads/main/src/main/resources/schema/bindex-schema-v2.json",
   "id": "org.machanism.machai:project-layout:1.4.1",
   "name": "org.machanism.machai:project-layout",
   "version": "1.4.1",
