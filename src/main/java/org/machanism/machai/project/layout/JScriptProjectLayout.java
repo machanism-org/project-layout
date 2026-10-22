@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JScriptProjectLayout extends ProjectLayout {
 
+	/** Cached workspace module paths discovered from the project's package descriptor. */
 	private List<String> workspaceModules;
 
 	/**
