@@ -72,7 +72,7 @@ Add Project Layout to the plugin, scanner, generator, or application that needs 
 <dependency>
   <groupId>org.machanism.machai</groupId>
   <artifactId>project-layout</artifactId>
-  <version>1.4.2-SNAPSHOT</version>
+  <version>1.4.2</version>
 </dependency>
 ```
 
