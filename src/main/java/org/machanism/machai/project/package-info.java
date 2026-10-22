@@ -1,20 +1,20 @@
 /**
- * Detects project layouts and traverses their module trees.
+ * Detects project layouts and traverses project module trees.
  *
  * <p>{@link ProjectLayoutManager} is the package's layout-detection entry
- * point. It checks descriptors in this order: Maven ({@code pom.xml}), Gradle
- * ({@code build.gradle}), JavaScript or TypeScript ({@code package.json}), and
- * Python ({@code pyproject.toml}). An existing directory without a recognized
- * descriptor uses
+ * point. It examines a directory for descriptors in this order: Maven
+ * ({@code pom.xml}), Gradle ({@code build.gradle}), JavaScript or TypeScript
+ * ({@code package.json}), and Python ({@code pyproject.toml}). An existing
+ * directory without a recognized descriptor uses
  * {@link org.machanism.machai.project.layout.DefaultProjectLayout}; a missing
  * directory causes {@link java.io.FileNotFoundException}.</p>
  *
  * <p>{@link ProjectProcessor} is the traversal entry point. It detects the
- * root layout and recursively scans each module returned by
+ * root layout and recursively scans every module returned by
  * {@link org.machanism.machai.project.layout.ProjectLayout#getModules()}.
  * A {@code null} module list identifies a leaf and invokes
  * {@link ProjectProcessor#processFolder(org.machanism.machai.project.layout.ProjectLayout)}.
- * A non-null empty list identifies a parent with no modules and does not invoke
+ * A non-null empty list identifies a project with no modules and does not invoke
  * that hook. Implementations should therefore make folder processing safe to
  * invoke once for each discovered leaf.</p>
  *
@@ -23,7 +23,9 @@
  * and metadata such as names, identifiers, and parent identifiers. Resolve
  * returned paths against
  * {@link org.machanism.machai.project.layout.ProjectLayout#getProjectDir()}
- * before accessing the filesystem.</p>
+ * before accessing the filesystem. Descriptor-backed layouts may parse and
+ * cache build metadata when their accessors are called; consult the concrete
+ * layout's documentation for descriptor-specific failure behavior.</p>
  *
  * <h2>Typical usage</h2>
  * <pre><code>
@@ -35,7 +37,8 @@
  * <p>Use the
  * {@link org.machanism.machai.project.layout} package for concrete layout
  * implementations, descriptor-specific behavior, path conventions, and
- * metadata limitations.</p>
+ * metadata limitations. Use {@link ProjectLayoutManager} when callers need
+ * descriptor detection without selecting an implementation themselves.</p>
  *
  * @since 0.0.2
  */

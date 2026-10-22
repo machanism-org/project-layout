@@ -16,7 +16,7 @@ title Project Layout - Component Diagram
 
 Person(developer, "Developer / Tool Integrator", "Uses the project layout API to inspect and process project structures.")
 
-System_Ext(projectFiles, "Project File System", "Project roots, source and test directories, documentation directories, modules, and descriptor files such as pom.xml, build.gradle, package.json, and pyproject.toml.")
+System_Ext(projectFiles, "Project File System", "Project roots, source and test directories, documentation directories, modules, and supported descriptors: pom.xml, build.gradle, package.json, and pyproject.toml.")
 System_Ext(mavenModel, "Maven Model API", "Apache Maven model classes used to represent parsed pom.xml metadata.")
 System_Ext(gradleTooling, "Gradle Tooling API", "Loads a GradleProject model from a Gradle build.")
 System_Ext(jsonParser, "Jackson JSON Parser", "Reads package.json workspace and project metadata.")
@@ -33,8 +33,8 @@ Container_Boundary(layoutComponents, "org.machanism.machai.project.layout") {
     Component(defaultLayout, "DefaultProjectLayout", "Java component", "Fallback layout that discovers eligible immediate child directories as modules and provides empty source, test, and documentation collections.")
     Component(mavenLayout, "MavenProjectLayout", "Java component", "Exposes Maven modules, identifiers, parent identifiers, source roots, test roots, and documentation roots from a Maven model.")
     Component(gradleLayout, "GradleProjectLayout", "Java component", "Detects build.gradle, loads Gradle project children through the Tooling API, and exposes conventional src/main, src/test, and src/site roots.")
-    Component(jsLayout, "JScriptProjectLayout", "Java component", "Reads package.json, identifies workspace modules, and exposes the JavaScript/TypeScript project identifier.")
-    Component(pythonLayout, "PythonProjectLayout", "Java component", "Detects public named pyproject.toml projects, rejects private classifiers, and provides safe default source, test, and documentation collections.")
+    Component(jsLayout, "JScriptProjectLayout", "Java component", "Reads package.json, expands array-form workspaces into package-containing modules, and exposes the JavaScript/TypeScript package name.")
+    Component(pythonLayout, "PythonProjectLayout", "Java component", "Detects named public pyproject.toml projects, rejects classifiers containing Private, and provides empty source, test, and documentation collections without declaring modules.")
     Component(pomReader, "PomReader", "Java component", "Reads pom.xml files, substitutes known properties, carries forward licenses, and converts content into Apache Maven Model objects.")
 }
 

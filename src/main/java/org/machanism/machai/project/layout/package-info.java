@@ -57,6 +57,16 @@
  *       non-excluded immediate subdirectories as module candidates and returns empty location collections.</li>
  * </ul>
  *
+ * <h2>Contract and failure behavior</h2>
+ * <p>
+ * Configure a layout with a non-null project root before invoking operations that
+ * read a build descriptor. Descriptor-backed layouts cache the metadata they
+ * load; malformed or unreadable descriptors are reported according to the
+ * implementation's API, while layouts that cannot discover optional metadata
+ * return their documented empty collection or {@code null} values. Paths exposed
+ * by this package are descriptive values and are not required to exist on disk.
+ * </p>
+ *
  * <h2>Typical usage</h2>
  * <pre><code>
  * java.io.File projectDir = new java.io.File("repo");

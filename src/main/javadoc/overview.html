@@ -8,19 +8,21 @@
     <H1>Project Layout</H1>
 
     <P>
-      Project Layout is a small utility library for describing and working with
-      conventional project directory layouts&mdash;including sources, resources,
-      tests, and documentation&mdash;in a consistent way. It is intended for build
-      tooling and plugins that need to locate well-known folders reliably across
-      different projects. Project Layout supports all types of project files,
-      including source code, documentation, project site content, and other
-      relevant files.
+      <STRONG>Project Layout</STRONG> is a small utility library for describing and
+      working with conventional project directory layouts&mdash;including sources,
+      resources, tests, and documentation&mdash;in a consistent way. It is intended
+      for build tooling and plugins that need to locate well-known folders reliably
+      across different projects. Project Layout supports all types of project files,
+      including source code, documentation, project site content, and other relevant
+      files.
     </P>
 
     <H2>Architecture and behavior</H2>
     <P>
-      The API has two cooperating layers. <CODE>ProjectLayoutManager</CODE> detects the
-      project type and creates a configured <CODE>ProjectLayout</CODE>, while
+      The <CODE>org.machanism.machai.project</CODE> package provides the entry points
+      for layout detection and recursive processing. <CODE>ProjectLayoutManager</CODE>
+      detects the project type and creates a configured
+      <CODE>org.machanism.machai.project.layout.ProjectLayout</CODE>, while
       <CODE>ProjectProcessor</CODE> provides reusable recursive processing of a project
       and its discovered modules. The layout abstraction keeps consumers independent
       of build-system-specific metadata and path conventions.

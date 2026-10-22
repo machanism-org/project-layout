@@ -22,7 +22,7 @@ Project Layout is a Java utility library for describing, detecting, and working 
 
 ## Project Structure
 
-The component design centers on a shared layout contract that exposes project roots, modules, source, test, and documentation roots, relative paths, exclusions, and temporary storage. A layout manager selects the first matching Maven, Gradle, JavaScript/TypeScript, Python, or fallback implementation from project metadata, while a project processor detects layouts, recursively scans their modules, and delegates processing of leaf projects.
+The component design centers on a shared layout contract that exposes project roots, modules, source, test, and documentation roots, relative paths, exclusions, and temporary storage. `ProjectLayoutManager` selects the first matching Maven, Gradle, JavaScript/TypeScript, Python, or fallback implementation from project metadata, while `ProjectProcessor` detects layouts, recursively scans their modules, and delegates processing of leaf projects.
 
 The library is organized around the following components:
 
@@ -31,7 +31,7 @@ The library is organized around the following components:
 - `ProjectProcessor`: recursively processes detected modules and delegates leaf-project work to subclasses.
 - Specialized layouts and metadata readers: provide ecosystem-specific discovery through Maven models, the Gradle Tooling API, Jackson, and Tomlj.
 
-Specialized layouts preserve each ecosystem's discovery rules: Maven metadata is read through a dedicated model reader, Gradle child projects are loaded through the Tooling API, and JavaScript and Python metadata are inspected through JSON and TOML parsers. All layouts work with the project file system and emit diagnostics through SLF4J, so consumers can use one API across project ecosystems.
+Specialized layouts preserve each ecosystem's discovery rules: Maven metadata is read through a dedicated model reader, Gradle child projects are loaded through the Tooling API, and JavaScript and Python metadata are inspected through JSON and TOML parsers. The shared layout contract handles filesystem traversal, relative-path conversion, exclusions, and temporary working-directory setup, while project processing and layout detection emit diagnostics through SLF4J. Consumers can therefore use one API across project ecosystems.
 
 ## Introduction
 
