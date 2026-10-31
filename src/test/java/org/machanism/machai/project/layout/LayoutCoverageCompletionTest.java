@@ -18,9 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.model.Build;
-import org.apache.maven.model.License;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.Resource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
