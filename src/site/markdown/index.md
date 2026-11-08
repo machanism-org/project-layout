@@ -34,7 +34,9 @@ Instead of duplicating path conventions throughout each tool, Project Layout cen
 
 ## Overview
 
-Project Layout provides abstractions and concrete layout strategies for common project ecosystems. It includes support for Maven, Gradle, JavaScript, Python, and default fallback project structures, along with utilities for reading project metadata and coordinating layout selection from a project root.
+Project Layout provides abstractions and concrete layout strategies for common project ecosystems. `ProjectLayoutManager` detects Maven, Gradle, JavaScript/TypeScript, and Python descriptors in that order, then uses a default filesystem layout when no supported descriptor matches. It configures the selected layout with the project root and reports a missing directory with `FileNotFoundException`.
+
+The shared API exposes source, test, and documentation roots, optional modules, project metadata, relative-path utilities, and exclusion-aware filesystem traversal. Capabilities depend on the layout: Maven derives roots and modules from POM metadata, Gradle exposes conventional roots and discovers child projects through the Tooling API, and JavaScript discovers array-form `package.json` workspaces. Python recognizes named public `pyproject.toml` projects. JavaScript, Python, and default layouts return empty source, test, and documentation collections rather than inferring those directories; the default layout discovers eligible immediate child directories as modules.
 
 The library is especially useful for tools that must operate over heterogeneous repositories or Maven multi-module builds. By resolving important directories through a common API, downstream tools can focus on analysis, generation, documentation, validation, or indexing without hard-coding ecosystem-specific folder rules.
 
@@ -44,11 +46,13 @@ The diagram is generated from the PlantUML source at `src/site/puml/c4-diagram.p
 
 ## Key Features
 
-- Standardized representation of conventional source, test, resource, and documentation directories
-- Built-in layout implementations for Maven, Gradle, JavaScript, Python, and default project structures
+- Common API for source, test, and documentation roots; Maven source and test collections also include resource paths
+- Built-in layout implementations for Maven, Gradle, JavaScript/TypeScript, Python, and default project structures
 - Project-root-relative path resolution for reliable tool integration
 - Maven metadata support through `PomReader` for reading `pom.xml` project information
 - Layout coordination through `ProjectLayoutManager` and project processing support through `ProjectProcessor`
+- Recursive module traversal with a consumer-defined leaf-project processing hook
+- File and directory listing with configurable exclusions
 - Suitable for build plugins, repository scanners, code generators, documentation tooling, and validation workflows
 - Lightweight Java library designed for reusable integration in other Machai components and external tools
 
@@ -56,10 +60,13 @@ The diagram is generated from the PlantUML source at `src/site/puml/c4-diagram.p
 
 ### Prerequisites
 
-- Java 8 or later
+- A JDK compatible with the resolved dependencies and build plugins; the library targets Java 8 bytecode
 - Maven 3.x or later for building and consuming the library
 - Access to Maven Central or another repository containing `org.machanism.machai:project-layout`
 - A project directory whose structure needs to be resolved or analyzed
+- For Gradle module discovery, a usable Gradle build and access to any required Gradle distribution or dependency repositories
+
+No hosted service is required for local layout detection. Network access may be needed to resolve build dependencies or a Gradle distribution.
 
 ### Basic Usage
 
@@ -85,7 +92,10 @@ import org.machanism.machai.project.layout.ProjectLayout;
 File projectDirectory = new File("path/to/project");
 try {
   ProjectLayout layout = ProjectLayoutManager.detectProjectLayout(projectDirectory);
-  // Use layout.getSources(), layout.getTests(), and layout.getDocuments().
+  for (String root : layout.getSources()) {
+    System.out.println(new File(layout.getProjectDir(), root));
+  }
+  // getTests() and getDocuments() provide additional root-relative paths.
 } catch (FileNotFoundException e) {
   // Handle a project directory that does not exist.
 }
@@ -97,27 +107,32 @@ Project Layout is a library, not a Maven plugin, so it does not provide a Maven 
 mvn clean verify
 ```
 
-For example, after adding Project Layout to a consuming Maven plugin, run that
-plugin's goal in the consuming project with its usual Maven command:
+To run a concrete Maven plugin during development, invoke the Maven Compiler
+Plugin from the library or consuming project's root:
 
 ```bash
-mvn <plugin-prefix>:<goal>
+mvn org.apache.maven.plugins:maven-compiler-plugin:3.14.0:compile
 ```
+
+This command compiles Java sources; it does not invoke layout detection. Execute
+the Java API from your application or a consuming plugin's implemented goal to
+inspect a target repository. There is no `project-layout` plugin goal to run.
 
 ### Typical Workflow
 
 1. Add `project-layout` as a dependency to the plugin, scanner, generator, or build tool that needs to inspect project structure.
 2. Identify the target project root directory that should be analyzed.
 3. Select the appropriate layout implementation, such as `MavenProjectLayout`, `GradleProjectLayout`, `JScriptProjectLayout`, `PythonProjectLayout`, or `DefaultProjectLayout`, or delegate layout coordination to `ProjectLayoutManager`.
-4. Resolve the relevant source, test, resource, and documentation paths through the selected layout abstraction.
+4. Read `getSources()`, `getTests()`, and `getDocuments()` and resolve each returned path against `getProjectDir()`. Handle empty collections for layouts that do not infer these roots.
 5. Use the resolved paths to drive compilation support, static analysis, code generation, documentation publishing, validation, or project indexing.
-6. Reuse the same layout model across tools to keep project-structure handling consistent and maintainable.
+6. For module traversal, implement `ProjectProcessor.processFolder(ProjectLayout)` and call `scanFolder(File)` to process detected leaf projects recursively. Reuse the same layout model across tools to keep project-structure handling consistent and maintainable.
 
 ## Resources
 
 - Maven Central: https://central.sonatype.com/artifact/org.machanism.machai/project-layout
-- Bindex Metadata: https://raw.githubusercontent.com/machanism-org/machai/refs/heads/main/project-layout/bindex.json
+- Bindex Metadata: https://raw.githubusercontent.com/machanism-org/project-layout/refs/heads/main/bindex.json
 - Machai Project Page: https://machai.machanism.org/project-layout
-- GitHub Repository: https://github.com/machanism-org/machai
-- Source Repository: https://github.com/machanism-org/machai.git
-- Issue Tracker: https://github.com/machanism-org/machai/issues
+- Machai Platform: https://machai.machanism.org/
+- GitHub Repository: https://github.com/machanism-org/project-layout
+- Source Repository: https://github.com/machanism-org/project-layout.git
+- Issue Tracker: https://github.com/machanism-org/project-layout/issues
