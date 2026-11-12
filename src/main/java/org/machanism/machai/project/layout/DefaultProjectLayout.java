@@ -65,25 +65,6 @@ public class DefaultProjectLayout extends ProjectLayout {
 	 */
 	@Override
 	public List<String> getModules() {
-		if (modules == null) {
-			modules = new ArrayList<>();
-
-			File projectDir = getProjectDir();
-			FileFilter filter = pathname -> pathname.isDirectory()
-					&& !isExcludedPath(pathname);
-			File[] listFiles = projectDir == null ? null : projectDir.listFiles(filter);
-
-			if (listFiles != null) {
-				for (File file : listFiles) {
-					modules.add(file.getName());
-				}
-			}
-
-			if (modules.isEmpty()) {
-				modules = NO_MODULES;
-			}
-		}
-
 		return modules;
 	}
 

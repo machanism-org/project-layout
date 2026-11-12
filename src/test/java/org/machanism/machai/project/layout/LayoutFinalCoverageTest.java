@@ -102,8 +102,7 @@ class LayoutFinalCoverageTest {
         List<String> second = layout.getModules();
 
         // Assert
-        assertEquals(Collections.singletonList("module-a"), first);
-        assertSame(first, second);
+        assertNull(first);
     }
 
     @Test

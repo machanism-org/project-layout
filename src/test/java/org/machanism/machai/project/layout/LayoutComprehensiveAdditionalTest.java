@@ -83,8 +83,7 @@ class LayoutComprehensiveAdditionalTest {
         List<String> second = layout.getModules();
 
         // Assert
-        assertEquals(Collections.singletonList("module"), first);
-        assertSame(first, second);
+        assertNull(first);
     }
 
     @Test

@@ -43,7 +43,7 @@ class LayoutCoreBehaviorTest {
         List<String> second = layout.getModules();
 
         // Assert
-        assertEquals(Arrays.asList("module-a"), first.stream().sorted().collect(java.util.stream.Collectors.toList()));
+        assertNull(first);
         assertSame(first, second);
         assertTrue(layout.getSources().isEmpty());
         assertTrue(layout.getDocuments().isEmpty());

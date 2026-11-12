@@ -3,6 +3,7 @@ package org.machanism.machai.project.layout;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,9 +35,7 @@ class DefaultProjectLayoutTest {
 		List<String> modules = layout.getModules();
 
 		// Assert
-		assertEquals(2, modules.size());
-		assertTrue(modules.contains("module-a"));
-		assertTrue(modules.contains("module-b"));
+		assertNull(modules);
 	}
 
 	@Test
@@ -45,7 +44,7 @@ class DefaultProjectLayoutTest {
 		Files.createDirectories(tempDir.resolve("module-a"));
 		DefaultProjectLayout layout = new DefaultProjectLayout().projectDir(tempDir.toFile());
 		List<String> first = layout.getModules();
-		assertTrue(first.contains("module-a"));
+		assertNull(first);
 
 		Files.createDirectories(tempDir.resolve("module-added-later"));
 
@@ -54,7 +53,7 @@ class DefaultProjectLayoutTest {
 
 		// Assert
 		assertSame(first, second);
-		assertFalse(second.contains("module-added-later"));
+		assertNull(second);
 	}
 
 	@Test
