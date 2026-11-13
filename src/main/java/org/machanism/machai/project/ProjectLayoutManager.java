@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.machanism.machai.project.layout.DefaultProjectLayout;
 import org.machanism.machai.project.layout.GradleProjectLayout;
 import org.machanism.machai.project.layout.JScriptProjectLayout;
+import org.machanism.machai.project.layout.MSAccessProjectLayout;
 import org.machanism.machai.project.layout.MavenProjectLayout;
 import org.machanism.machai.project.layout.ProjectLayout;
 import org.machanism.machai.project.layout.PythonProjectLayout;
@@ -62,6 +63,8 @@ public class ProjectLayoutManager {
 			projectLayout = new JScriptProjectLayout();
 		} else if (PythonProjectLayout.isPythonProject(projectDir)) {
 			projectLayout = new PythonProjectLayout();
+		} else if (MSAccessProjectLayout.isAccessProject(projectDir)) {
+			projectLayout = new MSAccessProjectLayout();
 		} else if (projectDir.exists()) {
 			projectLayout = new DefaultProjectLayout();
 		} else {
