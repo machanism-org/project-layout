@@ -16,13 +16,13 @@ title Project Layout - Component Diagram
 
 Person(developer, "Developer / Tool Integrator", "Uses the project layout API to inspect and process project structures.")
 
-System_Ext(projectFiles, "Project File System", "Project roots, source and test directories, documentation directories, modules, and supported descriptors: pom.xml, build.gradle, package.json, and pyproject.toml.")
+System_Ext(projectFiles, "Project File System", "Project roots, source and test directories, documentation directories, modules, and supported descriptors: pom.xml, build.gradle, package.json, pyproject.toml, and vcs-options.json.")
 System_Ext(gradleBuild, "Gradle Build", "Provides the GradleProject model and child projects through a Tooling API connection.")
 
 Container_Boundary(projectLibrary, "Project Layout Library") {
 Boundary(projectCore, "org.machanism.machai.project") {
     Component(projectProcessor, "ProjectProcessor", "Abstract Java component", "Detects layouts, recursively traverses modules, and delegates leaf processing to subclasses.")
-    Component(projectLayoutManager, "ProjectLayoutManager", "Java utility", "Selects and configures the first matching layout in Maven, Gradle, JavaScript/TypeScript, Python, then generic fallback order; fails for a missing project directory.")
+    Component(projectLayoutManager, "ProjectLayoutManager", "Java utility", "Selects and configures the first matching layout in Maven, Gradle, JavaScript/TypeScript, Python, MS Access, then generic fallback order; fails for a missing project directory.")
 }
 
 Boundary(layoutComponents, "org.machanism.machai.project.layout") {
@@ -32,6 +32,7 @@ Boundary(layoutComponents, "org.machanism.machai.project.layout") {
     Component(gradleLayout, "GradleProjectLayout", "Java component", "Detects build.gradle, loads Gradle project children through the Tooling API, and exposes conventional src/main, src/test, and src/site roots.")
     Component(jsLayout, "JScriptProjectLayout", "Java / Jackson", "Reads package.json, expands array-form workspace globs, and exposes the package identifier; source, test, and documentation roots are not inferred.")
     Component(pythonLayout, "PythonProjectLayout", "Java / Tomlj", "Detects named public pyproject.toml projects, rejects classifiers containing Private, and provides empty source, test, and documentation collections without declaring modules.")
+    Component(msAccessLayout, "MSAccessProjectLayout", "Java component", "Detects msaccess-vcs-addin exports by vcs-options.json in the project root or an immediate child; exposes the export directory as a source root, with no modules, tests, or documentation roots.")
     Component(pomReader, "PomReader", "Java / Maven Model API", "Parses and serializes Maven models, substitutes known properties, and carries forward licenses.")
 }
 }
@@ -47,6 +48,7 @@ Rel(projectLayoutManager, mavenLayout, "Selects when pom.xml is present")
 Rel(projectLayoutManager, gradleLayout, "Selects when build.gradle is present")
 Rel(projectLayoutManager, jsLayout, "Selects when package.json is present")
 Rel(projectLayoutManager, pythonLayout, "Selects when eligible pyproject.toml is present")
+Rel(projectLayoutManager, msAccessLayout, "Selects when vcs-options.json identifies an Access export")
 Rel(projectLayoutManager, defaultLayout, "Selects when no specialized layout matches")
 
 Rel_U(defaultLayout, projectLayout, "Extends")
@@ -54,6 +56,7 @@ Rel_U(mavenLayout, projectLayout, "Extends")
 Rel_U(gradleLayout, projectLayout, "Extends")
 Rel_U(jsLayout, projectLayout, "Extends")
 Rel_U(pythonLayout, projectLayout, "Extends")
+Rel_U(msAccessLayout, projectLayout, "Extends")
 
 Rel(projectLayout, projectFiles, "Lists directories and files, computes root-relative paths, and applies exclusions", "java.io.File / java.nio.file")
 Rel(defaultLayout, projectFiles, "Reads child directories")
@@ -64,6 +67,7 @@ Rel(gradleLayout, projectFiles, "Detects build.gradle and conventional roots")
 Rel(gradleLayout, gradleBuild, "Loads GradleProject model and child projects", "Gradle Tooling API")
 Rel(jsLayout, projectFiles, "Detects and reads package.json and workspaces")
 Rel(pythonLayout, projectFiles, "Detects and reads pyproject.toml")
+Rel(msAccessLayout, projectFiles, "Detects vcs-options.json and identifies the export source directory")
 
 SHOW_LEGEND()
 @enduml
