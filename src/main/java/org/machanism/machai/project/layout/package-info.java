@@ -1,85 +1,68 @@
 /**
- * APIs for detecting and describing a repository's on-disk project layout.
+ * Detects project types and describes their conventional on-disk layouts.
  *
  * <p>
- * A {@link org.machanism.machai.project.layout.ProjectLayout} represents a configured project root and exposes
- * conventional locations as paths relative to that root. Concrete implementations adapt the common API to Maven,
- * Gradle, JavaScript/TypeScript, Python, and unrecognized project structures. Select a layout, configure its root
- * with {@link org.machanism.machai.project.layout.ProjectLayout#projectDir(java.io.File)}, then query its source,
- * test, documentation, module, and project-identity accessors. Resolve returned path strings against that configured
- * root before using them on the filesystem.
+ * The central contract, {@link org.machanism.machai.project.layout.ProjectLayout}, exposes source, test, and
+ * documentation locations together with available module and project-identity metadata. Configure an implementation
+ * with its project root using {@link org.machanism.machai.project.layout.ProjectLayout#projectDir(java.io.File)} before
+ * calling accessors that inspect project files. Location strings are generally relative to that root; resolve them
+ * against the configured directory before filesystem access. The locations describe conventions and, except where
+ * noted for exported Access source, do not guarantee that the paths exist.
  * </p>
  *
+ * <h2>Layout selection</h2>
  * <p>
- * The package provides a common contract through {@link org.machanism.machai.project.layout.ProjectLayout} and
- * specialized implementations for Maven, Gradle, JavaScript/TypeScript, and Python projects. Each implementation
- * documents its detection rules, metadata behavior, conventional locations, and limitations; use
- * {@link org.machanism.machai.project.layout.DefaultProjectLayout} when no supported build descriptor is available.
- * {@link org.machanism.machai.project.layout.PomReader} is the package utility for parsing and serializing Maven
- * models.
- * </p>
- *
- * <h2>Responsibilities</h2>
- * <ul>
- *   <li>Expose production-source, test-source, and documentation directories as root-relative paths.</li>
- *   <li>Discover child modules from build metadata or filesystem conventions where the ecosystem supports it.</li>
- *   <li>Provide project identifiers, names, parent identifiers, and a layout type when the underlying metadata supplies them.</li>
- *   <li>Offer shared path, directory-scanning, exclusion, and temporary-directory utilities through {@link org.machanism.machai.project.layout.ProjectLayout}.</li>
- *   <li>Parse Maven descriptors and serialize Maven models with {@link org.machanism.machai.project.layout.PomReader}.</li>
- * </ul>
- *
- * <h2>Choosing a layout</h2>
- * <p>
- * Use the descriptor-detection methods on the applicable implementation before constructing a specialized layout:
+ * The descriptor checks provide a way to choose a specialized implementation:
  * {@link org.machanism.machai.project.layout.MavenProjectLayout#isMavenProject(java.io.File)} checks for
- * {@code pom.xml}, {@link org.machanism.machai.project.layout.GradleProjectLayout#isGradleProject(java.io.File)}
- * checks for {@code build.gradle},
+ * {@code pom.xml}; {@link org.machanism.machai.project.layout.GradleProjectLayout#isGradleProject(java.io.File)} checks
+ * for {@code build.gradle}; and
  * {@link org.machanism.machai.project.layout.JScriptProjectLayout#isPackageJsonPresent(java.io.File)} checks for
- * {@code package.json}, and
- * {@link org.machanism.machai.project.layout.PythonProjectLayout#isPythonProject(java.io.File)} validates a public,
- * named {@code pyproject.toml} project. When no specialized descriptor applies,
- * {@link org.machanism.machai.project.layout.DefaultProjectLayout} offers a filesystem-based fallback.
+ * {@code package.json}. {@link org.machanism.machai.project.layout.PythonProjectLayout#isPythonProject(java.io.File)}
+ * additionally validates that {@code pyproject.toml} describes a named, non-private project.
+ * {@link org.machanism.machai.project.layout.MSAccessProjectLayout#isAccessProject(java.io.File)} recognizes an
+ * msaccess-vcs-addin export by the presence of {@code vcs-options.json} in the root or an immediate child directory.
+ * Use {@link org.machanism.machai.project.layout.DefaultProjectLayout} as a generic fallback when no specialized
+ * layout applies; it does not infer source, test, documentation, or module locations.
  * </p>
  *
  * <h2>Supported layouts</h2>
  * <ul>
- *   <li>{@link org.machanism.machai.project.layout.MavenProjectLayout} reads {@code pom.xml}, including Maven modules,
- *       build source roots, resources, tests, project coordinates, and parent coordinates.</li>
- *   <li>{@link org.machanism.machai.project.layout.GradleProjectLayout} uses the Gradle Tooling API for project and
- *       child-module names and supplies conventional {@code src/main}, {@code src/test}, and {@code src/site} roots.
- *       It does not inspect custom Gradle source sets.</li>
- *   <li>{@link org.machanism.machai.project.layout.JScriptProjectLayout} reads array-form {@code package.json}
- *       workspace globs and identifies matching workspace directories containing their own package descriptor.
- *       Source, test, and documentation discovery return empty collections.</li>
- *   <li>{@link org.machanism.machai.project.layout.PythonProjectLayout} recognizes public projects described by
- *       {@code pyproject.toml}; source, test, and documentation discovery currently returns empty collections.</li>
- *   <li>{@link org.machanism.machai.project.layout.DefaultProjectLayout} provides a filesystem fallback that treats
- *       non-excluded immediate subdirectories as module candidates and returns empty location collections.</li>
+ *   <li>{@link org.machanism.machai.project.layout.MavenProjectLayout} reads the Maven model. For projects with
+ *       {@code packaging=pom}, it exposes declared modules; it also reports configured or conventional source and test
+ *       roots, resources, the conventional {@code src/site} documentation location, and available project and parent
+ *       identifiers.</li>
+ *   <li>{@link org.machanism.machai.project.layout.GradleProjectLayout} uses the Gradle Tooling API for the project
+ *       model and direct child names. It reports conventional {@code src/main}, {@code src/test}, and {@code src/site}
+ *       locations and does not inspect custom source sets.</li>
+ *   <li>{@link org.machanism.machai.project.layout.JScriptProjectLayout} reads array-form {@code workspaces} globs
+ *       from {@code package.json}; matching directories are reported only when they contain their own
+ *       {@code package.json}. It does not infer source, test, or documentation locations.</li>
+ *   <li>{@link org.machanism.machai.project.layout.PythonProjectLayout} recognizes a named, non-private
+ *       {@code pyproject.toml} project but does not currently infer module, source, test, or documentation locations.</li>
+ *   <li>{@link org.machanism.machai.project.layout.MSAccessProjectLayout} reports the detected
+ *       msaccess-vcs-addin export directory as a source location; it does not define test or documentation locations.</li>
+ *   <li>{@link org.machanism.machai.project.layout.DefaultProjectLayout} supplies empty source, test, and documentation
+ *       collections without interpreting project metadata.</li>
  * </ul>
  *
- * <h2>Contract and failure behavior</h2>
  * <p>
- * Configure a layout with a non-null project root before invoking operations that
- * read a build descriptor. Descriptor-backed layouts cache the metadata they
- * load; malformed or unreadable descriptors are reported according to the
- * implementation's API, while layouts that cannot discover optional metadata
- * return their documented empty collection or {@code null} values. Paths exposed
- * by this package are descriptive values and are not required to exist on disk.
+ * {@link org.machanism.machai.project.layout.ProjectLayout} also provides shared path conversion, directory scanning,
+ * exclusion-pattern, project identity, and temporary-directory operations. Maven model parsing and serialization are
+ * provided by {@link org.machanism.machai.project.layout.PomReader}.
  * </p>
  *
- * <h2>Typical usage</h2>
+ * <h2>Usage</h2>
  * <pre><code>
  * java.io.File projectDir = new java.io.File("repo");
  * ProjectLayout layout = new MavenProjectLayout().projectDir(projectDir);
  * java.util.Collection&lt;String&gt; sources = layout.getSources();
  * java.util.Collection&lt;String&gt; tests = layout.getTests();
- * java.util.List&lt;String&gt; modules = layout.getModules();
  * </code></pre>
  *
  * <p>
- * Returned paths are intended to be resolved against {@code projectDir}. Layouts use {@code null} to indicate that no
- * modules are declared, so callers must handle that result. Some accessors load and parse build descriptors when they
- * are invoked and can report malformed or missing metadata through their documented exceptions.
+ * Some metadata accessors read descriptors when invoked and may report invalid or unreadable input according to the
+ * implementation. A {@code null} module list may indicate that modules are not declared; callers should handle it
+ * rather than assuming every layout returns an empty list.
  * </p>
  */
 package org.machanism.machai.project.layout;
