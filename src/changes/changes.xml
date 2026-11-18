@@ -3,6 +3,10 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/changes/2.0.0 https://maven.apache.org/xsd/changes-2.0.0.xsd">
   <body>
+    <release version="1.4.3" date="2026-11-17" description="Adds MS Access project layout detection and updates default module discovery behavior.">
+      <action dev="dev" type="add">Added detection of MS Access project layouts using vcs-options.json markers.</action>
+      <action dev="dev" type="update">Default project layouts no longer scan directories to discover modules.</action>
+    </release>
     <release version="1.4" date="2026-09-01" description="Adds automatic tool selection and guidance support while improving error handling and file-processing behavior.">
       <!-- Features -->
       <action dev="dev" type="add">Tool Selection: Added automatic tool selection, including query-rule support for choosing tools dynamically.</action>
