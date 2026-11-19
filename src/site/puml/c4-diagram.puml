@@ -21,14 +21,14 @@ System_Ext(gradleBuild, "Gradle Build", "Provides the GradleProject model and ch
 
 Container_Boundary(projectLibrary, "Project Layout Library") {
 Boundary(projectCore, "org.machanism.machai.project") {
-    Component(projectProcessor, "ProjectProcessor", "Abstract Java component", "Detects layouts, recursively traverses modules, and delegates leaf processing to subclasses.")
+    Component(projectProcessor, "ProjectProcessor", "Abstract Java component", "Detects layouts; recursively scans each reported module, or delegates directly to the subclass when modules are null.")
     Component(projectLayoutManager, "ProjectLayoutManager", "Java utility", "Selects and configures the first matching layout in Maven, Gradle, JavaScript/TypeScript, Python, MS Access, then generic fallback order; fails for a missing project directory.")
 }
 
 Boundary(layoutComponents, "org.machanism.machai.project.layout") {
     Component(projectLayout, "ProjectLayout", "Abstract Java component", "Defines the layout contract: project metadata, modules, source, test, and documentation roots; provides path and filesystem utilities with exclusions.")
-    Component(defaultLayout, "DefaultProjectLayout", "Java component", "Fallback layout that discovers eligible immediate child directories as modules and provides empty source, test, and documentation collections.")
-    Component(mavenLayout, "MavenProjectLayout", "Java component", "Reads Maven modules and identifiers from the model, derives source and test roots from build metadata/defaults, and supplies src/site as the documentation root.")
+    Component(defaultLayout, "DefaultProjectLayout", "Java component", "Fallback layout whose module list is null and whose source, test, and documentation collections are empty; project processing therefore treats it as a leaf.")
+    Component(mavenLayout, "MavenProjectLayout", "Java component", "Reads Maven modules and identifiers from the model, derives production roots from build metadata/defaults, reads configured test roots, and supplies src/site as the documentation root.")
     Component(gradleLayout, "GradleProjectLayout", "Java component", "Detects build.gradle, loads Gradle project children through the Tooling API, and exposes conventional src/main, src/test, and src/site roots.")
     Component(jsLayout, "JScriptProjectLayout", "Java / Jackson", "Reads package.json, expands array-form workspace globs, and exposes the package identifier; source, test, and documentation roots are not inferred.")
     Component(pythonLayout, "PythonProjectLayout", "Java / Tomlj", "Detects named public pyproject.toml projects, rejects classifiers containing Private, and provides empty source, test, and documentation collections without declaring modules.")
@@ -42,6 +42,7 @@ Rel(developer, projectLayoutManager, "Requests layout detection from", "Java API
 
 Rel(projectProcessor, projectLayoutManager, "Detects a layout through")
 Rel(projectProcessor, projectLayout, "Processes folders using the layout contract")
+Rel(projectProcessor, projectProcessor, "Recursively scans each reported module")
 Rel(projectLayoutManager, projectFiles, "Checks project descriptors in detection order")
 Rel(projectLayoutManager, projectLayout, "Returns configured layout instance")
 Rel(projectLayoutManager, mavenLayout, "Selects when pom.xml is present")
@@ -59,7 +60,6 @@ Rel_U(pythonLayout, projectLayout, "Extends")
 Rel_U(msAccessLayout, projectLayout, "Extends")
 
 Rel(projectLayout, projectFiles, "Lists directories and files, computes root-relative paths, and applies exclusions", "java.io.File / java.nio.file")
-Rel(defaultLayout, projectFiles, "Reads child directories")
 Rel(mavenLayout, projectFiles, "Detects pom.xml and resolves source and test paths")
 Rel(mavenLayout, pomReader, "Uses for Maven metadata")
 Rel(pomReader, projectFiles, "Reads pom.xml", "java.io.FileReader")

@@ -34,9 +34,9 @@ Instead of duplicating path conventions throughout each tool, Project Layout cen
 
 ## Overview
 
-Project Layout provides abstractions and concrete layout strategies for common project ecosystems. `ProjectLayoutManager` detects Maven, Gradle, JavaScript/TypeScript, and Python descriptors in that order, then uses a default filesystem layout when no supported descriptor matches. It configures the selected layout with the project root and reports a missing directory with `FileNotFoundException`.
+Project Layout provides abstractions and concrete layout strategies for common project ecosystems. `ProjectLayoutManager` detects Maven, Gradle, JavaScript/TypeScript, Python, and MS Access projects in that order, then uses a default filesystem layout when no supported descriptor matches. It configures the selected layout with the project root and reports a missing directory with `FileNotFoundException`.
 
-The shared API exposes source, test, and documentation roots, optional modules, project metadata, relative-path utilities, and exclusion-aware filesystem traversal. Capabilities depend on the layout: Maven derives roots and modules from POM metadata, Gradle exposes conventional roots and discovers child projects through the Tooling API, and JavaScript discovers array-form `package.json` workspaces. Python recognizes named public `pyproject.toml` projects. JavaScript, Python, and default layouts return empty source, test, and documentation collections rather than inferring those directories; the default layout discovers eligible immediate child directories as modules.
+The shared API exposes source, test, and documentation roots, optional modules, project metadata, relative-path utilities, and exclusion-aware filesystem traversal. Capabilities depend on the layout: Maven derives roots and modules from POM metadata, Gradle exposes conventional roots and discovers child projects through the Tooling API, JavaScript discovers array-form `package.json` workspaces, and MS Access recognizes exports created by `msaccess-vcs-addin`. Python recognizes named public `pyproject.toml` projects. JavaScript, Python, and default layouts return empty source, test, and documentation collections rather than inferring those directories. Module discovery is provided by Maven parent projects, Gradle multi-project builds, and JavaScript workspaces; other layouts may report no modules.
 
 The library is especially useful for tools that must operate over heterogeneous repositories or Maven multi-module builds. By resolving important directories through a common API, downstream tools can focus on analysis, generation, documentation, validation, or indexing without hard-coding ecosystem-specific folder rules.
 
@@ -47,7 +47,7 @@ The diagram is generated from the PlantUML source at `src/site/puml/c4-diagram.p
 ## Key Features
 
 - Common API for source, test, and documentation roots; Maven source and test collections also include resource paths
-- Built-in layout implementations for Maven, Gradle, JavaScript/TypeScript, Python, and default project structures
+- Built-in layout implementations for Maven, Gradle, JavaScript/TypeScript, Python, MS Access, and default project structures
 - Project-root-relative path resolution for reliable tool integration
 - Maven metadata support through `PomReader` for reading `pom.xml` project information
 - Layout coordination through `ProjectLayoutManager` and project processing support through `ProjectProcessor`
@@ -76,7 +76,7 @@ Project Layout is a library rather than an executable Maven plugin. Add it to a 
 <dependency>
   <groupId>org.machanism.machai</groupId>
   <artifactId>project-layout</artifactId>
-  <version>1.4.2</version>
+  <version>1.4.3</version>
 </dependency>
 ```
 
@@ -122,10 +122,10 @@ inspect a target repository. There is no `project-layout` plugin goal to run.
 
 1. Add `project-layout` as a dependency to the plugin, scanner, generator, or build tool that needs to inspect project structure.
 2. Identify the target project root directory that should be analyzed.
-3. Select the appropriate layout implementation, such as `MavenProjectLayout`, `GradleProjectLayout`, `JScriptProjectLayout`, `PythonProjectLayout`, or `DefaultProjectLayout`, or delegate layout coordination to `ProjectLayoutManager`.
+3. Select the appropriate layout implementation, such as `MavenProjectLayout`, `GradleProjectLayout`, `JScriptProjectLayout`, `PythonProjectLayout`, `MSAccessProjectLayout`, or `DefaultProjectLayout`, or delegate layout coordination to `ProjectLayoutManager`.
 4. Read `getSources()`, `getTests()`, and `getDocuments()` and resolve each returned path against `getProjectDir()`. Handle empty collections for layouts that do not infer these roots.
 5. Use the resolved paths to drive compilation support, static analysis, code generation, documentation publishing, validation, or project indexing.
-6. For module traversal, implement `ProjectProcessor.processFolder(ProjectLayout)` and call `scanFolder(File)` to process detected leaf projects recursively. Reuse the same layout model across tools to keep project-structure handling consistent and maintainable.
+6. For module traversal, implement `ProjectProcessor.processFolder(ProjectLayout)` and call `scanFolder(File)` to process detected leaf projects recursively. Layouts that return `null` modules are processed directly; layouts that return a module list are traversed recursively. Reuse the same layout model across tools to keep project-structure handling consistent and maintainable.
 
 ## Resources
 
