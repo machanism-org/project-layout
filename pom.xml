@@ -8,17 +8,21 @@
 	<parent>
 		<groupId>org.machanism.machai</groupId>
 		<artifactId>machai</artifactId>
-		<version>1.4.3</version>
+		<version>1.4.4-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>project-layout</artifactId>
 	<name>Project Layout</name>
+	
+	<!-- @guidance: Summarize the `src/site/markdown/index.md` introduction
+	section and put this conten to the `description` tag.  -->
 	<description>
-		Project Layout is a small utility library for describing and working
-		with conventional project directory layouts (sources, resources, tests,
-		docs, etc.) in a consistent way. It is intended for build tooling and
-		plugins that need to locate well-known folders reliably across different
-		projects.
+		Project Layout is a Java utility library for describing, detecting, and
+		working with conventional project directory layouts. It provides a shared,
+		reusable model for locating production sources, test sources, resources,
+		documentation, and other well-known folders across technology stacks,
+		helping build tools and plugins avoid duplicated conventions, reduce
+		configuration drift, and adapt to different project structures.
 	</description>
 
 	<properties>
